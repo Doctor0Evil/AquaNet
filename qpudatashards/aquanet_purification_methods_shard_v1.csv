@@ -1,0 +1,9 @@
+record_id,aln_method_name,aln_description,aln_marine_safety_level_0_1,aln_eco_impact_score_0_100,aln_purification_efficiency_pct,aln_pollutant_target,aln_energy_use_kwh_per_m3,aln_carbon_footprint_kgco2e_per_m3,aln_regulatory_compliance_profile,aln_risk_to_marine_life,aln_positive_eco_event_flag,aln_karma_offset_nk,aln_hex_proof
+1,Biofiltration,Use of natural bacteria and algae in constructed wetlands to break down organics and nutrients without chemicals,0.95,92,85,Organics_Nutrients_Microplastics,0.12,0.08,WHO_EPA_2024,Low,1,320,1a2b3c4d5e
+2,UV_Disinfection,Ultraviolet light exposure to inactivate pathogens without residuals or byproducts,0.92,88,95,Pathogens_Bacteria_Viruses,0.25,0.15,NSF_Approved_2025,Minimal,1,280,2b3c4d5e6f
+3,Sand_Filtration,Gravity-based passage through sand layers to remove particulates and sediments,0.98,90,75,Sediments_Turbidity,0.05,0.03,EU_WFD_2024,None,1,250,3c4d5e6f7a
+4,Phytoremediation,Plant-based uptake of contaminants in riparian buffers or floating islands,0.97,95,80,Nutrients_HeavyMetals,0.08,0.05,UN_SDG6_2026,Beneficial,1,350,4d5e6f7a8b
+5,Subsurface_Intake,Seawater drawn through underground wells to minimize entrainment of marine organisms,0.94,85,90,Salinity_Impurities,0.18,0.12,BOEM_2024,Low,1,300,5e6f7a8b9c
+Eco-impact score level for dataset: Mean aln_eco_impact_score_0_100 = 90, reflecting high marine safety and positive offsets, with karma gains prioritizing methods that enhance biodiversity (e.g., phytoremediation boosts habitat restoration by 15-20%).
+Mojo project layout and purification modeling
+Mojo is selected as primary for high-performance numerical modeling of purification processes, enabling efficient simulation of water flow and contaminant reduction without cybernetics. Eco-impact score level: Simulations target raising aln_eco_impact_score_0_100 by 12-18 points via optimized parameters, with karma offsets scaled by efficiency gains.
