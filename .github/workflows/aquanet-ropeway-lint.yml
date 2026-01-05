@@ -1,32 +1,50 @@
 name: AquaNet Ropeway Lint
-on:
-pull_request:
-paths:
 
-"qpudatashards/**.csv"
+on:
+  pull_request:
+    paths:
+      - "qpudatashards/**.csv"
+
 jobs:
-lint:
-runs-on: ubuntu-latest
-steps:
-name: Checkout repository
-uses: actions/checkout@v4
-name: Validate CSV
-working-directory: qpudatashards
-run: |
-file="aquanet_ropeway_params_shard_v1.csv"
-header_cols=$(head -n1 "$file" | awk -F',' '{print NF}')
-if [ "$header_cols" -lt 22 ]; then echo "ERROR: Expected at least 22 columns"; exit 1; fi
-echo "CSV OK: $header_cols"
-name: Check efficiency ratios
-working-directory: qpudatashards
-run: |
-file="aquanet_ropeway_params_shard_v1.csv"
-awk -F',' 'NR>1 { if($9<0 || $9>1 || $10<0 || $10>1 || $11<0 || $11>1) {err=1; print "Invalid efficiency at line " NR} } END { if(err==1) exit 1 }' "$file"
-echo "Efficiency ratios valid."
-name: Positive eco events
-working-directory: qpudatashards
-run: |
-file="aquanet_ropeway_params_shard_v1.csv"
-positive=$(awk -F',' 'NR>1 && $20==1 {c++} END {print c+0}' "$file")
-if [ "$positive" -lt 1 ]; then echo "ERROR: At least one positive_eco_event_flag required"; exit 1; fi
-echo "Positive events: $positive"
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate CSV structure
+        working-directory: qpudatashards
+        run: |
+          file="aquanet_ropeway_params_shard_v1.csv"
+          header_cols=$(head -n1 "$file" | awk -F',' '{print NF}')
+          if [ "$header_cols" -lt 22 ]; then
+            echo "ERROR: Expected at least 22 columns, found $header_cols"
+            exit 1
+          fi
+          echo "CSV column count OK: $header_cols"
+
+      - name: Check efficiency ratios
+        working-directory: qpudatashards
+        run: |
+          file="aquanet_ropeway_params_shard_v1.csv"
+          awk -F',' '
+            NR>1 {
+              if ($9<0 || $9>1 || $10<0 || $10>1 || $11<0 || $11>1) {
+                err=1
+                print "Invalid efficiency at line " NR
+              }
+            }
+            END { if (err==1) exit 1 }
+          ' "$file"
+          echo "Efficiency ratios valid."
+
+      - name: Require positive eco events
+        working-directory: qpudatashards
+        run: |
+          file="aquanet_ropeway_params_shard_v1.csv"
+          positive=$(awk -F',' 'NR>1 && $20==1 {c++} END {print c+0}' "$file")
+          if [ "$positive" -lt 1 ]; then
+            echo "ERROR: At least one positive_eco_event_flag required"
+            exit 1
+          fi
+          echo "Positive eco events: $positive"
