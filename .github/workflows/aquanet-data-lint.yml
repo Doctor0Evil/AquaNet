@@ -1,0 +1,43 @@
+name: AquaNet Data Lint & Eco Guardrails
+
+on:
+  pull_request:
+    paths:
+      - "qpudatashards/**.csv"
+
+jobs:
+  lint-and-guard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate CSV structure
+        working-directory: qpudatashards
+        run: |
+          file="aquanet_aqua_karma_shard_v1.csv"
+          header_cols=$(head -n1 "$file" | awk -F',' '{print NF}')
+          if [ "$header_cols" -lt 55 ]; then
+            echo "ERROR: Expected at least 55 columns, found $header_cols"
+            exit 1
+          fi
+          echo "CSV column count OK: $header_cols"
+
+      - name: Check eco-impact distribution
+        working-directory: qpudatashards
+        run: |
+          file="aquanet_aqua_karma_shard_v1.csv"
+          awk -F',' 'NR>1 { if($51<0 || $51>100) {err=1; print "Out-of-range eco-impact score at line " NR ": " $51} } END { if(err==1) exit 1 }' "$file"
+          echo "Eco-impact scores are in [0,100]."
+
+      - name: Positive eco-value presence
+        working-directory: qpudatashards
+        run: |
+          file="aquanet_aqua_karma_shard_v1.csv"
+          positive=$(awk -F',' 'NR>1 && $55==1 {c++} END {print c+0}' "$file")
+          if [ "$positive" -eq 0 ]; then
+            echo "WARNING: No positive_eco_event_flag records; please ensure at least one remediation or recycling event is logged for karma reflection."
+          else
+            echo "Positive eco events detected: $positive"
+          fi
