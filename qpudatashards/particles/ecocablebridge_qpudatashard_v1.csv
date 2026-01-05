@@ -1,0 +1,130 @@
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <string>
+
+struct RopewayConfig {
+    double span_m;
+    double avg_load_kg;
+    double trip_time_s;
+    double elevation_diff_m;
+    double cable_efficiency;
+    double motor_efficiency;
+    double flywheel_roundtrip_eff;
+    double renewable_fraction;
+};
+
+struct RopewayResult {
+    double mech_energy_j;
+    double elec_energy_j;
+    double elec_energy_kwh;
+    double ton_km;
+    double kwh_per_ton_km;
+    double co2_diesel_kg;
+    double co2_elec_kg;
+    double co2_avoided_kg;
+    double eco_score_0_10;
+};
+
+static constexpr double G = 9.80665;
+
+RopewayResult simulate_trip(const RopewayConfig &cfg) {
+    RopewayResult r{};
+
+    double mass_ton = cfg.avg_load_kg / 1000.0;
+    double distance_km = cfg.span_m / 1000.0;
+    r.ton_km = mass_ton * distance_km;
+
+    double v_avg = cfg.span_m / cfg.trip_time_s;
+    double drag_coeff = 0.8;   // effective drag factor for carriers
+    double area_m2   = 3.0;    // projected area per carrier
+    double rho_air   = 1.225;  // kg/m3
+
+    double f_drag = 0.5 * rho_air * drag_coeff * area_m2 * v_avg * v_avg;
+    double e_drag = f_drag * cfg.span_m;
+
+    double e_lift = cfg.avg_load_kg * G * cfg.elevation_diff_m;
+    if (cfg.elevation_diff_m < 0.0) {
+        e_lift = 0.0;
+    }
+
+    r.mech_energy_j = (e_drag + e_lift) / cfg.cable_efficiency;
+
+    double eff_chain = cfg.motor_efficiency * cfg.flywheel_roundtrip_eff;
+    r.elec_energy_j = r.mech_energy_j / eff_chain;
+
+    r.elec_energy_kwh = r.elec_energy_j / 3.6e6;
+    r.kwh_per_ton_km = (r.ton_km > 0.0) ? r.elec_energy_kwh / r.ton_km : 0.0;
+
+    double diesel_kwh_per_ton_km = 0.6; // typical small ferry
+    double co2_diesel_kg_per_kwh = 0.27;
+    r.co2_diesel_kg = diesel_kwh_per_ton_km * r.ton_km * co2_diesel_kg_per_kwh;
+
+    double grid_co2_kg_per_kwh = 0.15;
+    double renewable_co2_kg_per_kwh = 0.02;
+    double eff_co2_kwh = cfg.renewable_fraction * renewable_co2_kg_per_kwh +
+                         (1.0 - cfg.renewable_fraction) * grid_co2_kg_per_kwh;
+    r.co2_elec_kg = r.elec_energy_kwh * eff_co2_kwh;
+
+    r.co2_avoided_kg = r.co2_diesel_kg - r.co2_elec_kg;
+
+    double perf = std::max(0.0, 1.0 - r.kwh_per_ton_km / 1.0);
+    double avoid_norm = std::min(1.0, std::max(0.0, r.co2_avoided_kg / 10.0));
+    r.eco_score_0_10 = 10.0 * 0.6 * perf + 10.0 * 0.4 * avoid_norm;
+
+    return r;
+}
+
+void write_qpudatashard(const RopewayConfig &cfg,
+                        const RopewayResult &res,
+                        const std::string &filepath) {
+    std::ofstream ofs(filepath);
+    if (!ofs) {
+        std::cerr << "Failed to open shard file: " << filepath << "\n";
+        return;
+    }
+
+    ofs << "key,value,unit,aln_tag\n";
+    ofs << "span_m," << cfg.span_m << ",m,CFG\n";
+    ofs << "avg_load_kg," << cfg.avg_load_kg << ",kg,CFG\n";
+    ofs << "trip_time_s," << cfg.trip_time_s << ",s,CFG\n";
+    ofs << "elevation_diff_m," << cfg.elevation_diff_m << ",m,CFG\n";
+    ofs << "cable_efficiency," << cfg.cable_efficiency << ",ratio,CFG\n";
+    ofs << "motor_efficiency," << cfg.motor_efficiency << ",ratio,CFG\n";
+    ofs << "flywheel_roundtrip_eff," << cfg.flywheel_roundtrip_eff << ",ratio,CFG\n";
+    ofs << "renewable_fraction," << cfg.renewable_fraction << ",ratio,CFG\n";
+
+    ofs << "mech_energy_j," << res.mech_energy_j << ",J,RES\n";
+    ofs << "elec_energy_j," << res.elec_energy_j << ",J,RES\n";
+    ofs << "elec_energy_kwh," << res.elec_energy_kwh << ",kWh,RES\n";
+    ofs << "ton_km," << res.ton_km << ",ton-km,RES\n";
+    ofs << "kwh_per_ton_km," << res.kwh_per_ton_km << ",kWh/ton-km,RES\n";
+    ofs << "co2_diesel_kg," << res.co2_diesel_kg << ",kgCO2,RES\n";
+    ofs << "co2_elec_kg," << res.co2_elec_kg << ",kgCO2,RES\n";
+    ofs << "co2_avoided_kg," << res.co2_avoided_kg << ",kgCO2,RES\n";
+    ofs << "eco_score_0_10," << res.eco_score_0_10 << ",score,RES\n";
+
+    ofs.close();
+}
+
+int main() {
+    RopewayConfig cfg{};
+    cfg.span_m = 1200.0;
+    cfg.avg_load_kg = 40000.0;
+    cfg.trip_time_s = 600.0;
+    cfg.elevation_diff_m = 2.0;
+    cfg.cable_efficiency = 0.95;
+    cfg.motor_efficiency = 0.93;
+    cfg.flywheel_roundtrip_eff = 0.9;
+    cfg.renewable_fraction = 0.85;
+
+    RopewayResult res = simulate_trip(cfg);
+
+    std::string shard_path = "qpudatashards/particles/ecocablebridge_qpudatashard_v1.csv";
+    write_qpudatashard(cfg, res, shard_path);
+
+    std::cout << "EcoCableBridge simulation complete.\n";
+    std::cout << "Eco score: " << res.eco_score_0_10 << " / 10\n";
+    std::cout << "Shard written to: " << shard_path << "\n";
+    return 0;
+}
