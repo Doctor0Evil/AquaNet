@@ -1,0 +1,32 @@
+name: AquaNet Marine Lint
+on:
+pull_request:
+paths:
+
+"qpudatashards/**.csv"
+jobs:
+lint:
+runs-on: ubuntu-latest
+steps:
+name: Checkout repository
+uses: actions/checkout@v4
+name: Validate CSV
+working-directory: qpudatashards
+run: |
+file="aquanet_marine_stressor_limits_shard_v1.csv"
+header_cols=$(head -n1 "$file" | awk -F',' '{print NF}')
+if [ "$header_cols" -lt 14 ]; then echo "ERROR: Expected at least 14 columns"; exit 1; fi
+echo "CSV OK: $header_cols"
+name: Check safety levels
+working-directory: qpudatashards
+run: |
+file="aquanet_marine_stressor_limits_shard_v1.csv"
+awk -F',' 'NR>1 { if($7<0 || $7>1) {err=1; print "Invalid safety at line " NR} } END { if(err==1) exit 1 }' "$file"
+echo "Safety levels valid."
+name: Positive eco events
+working-directory: qpudatashards
+run: |
+file="aquanet_marine_stressor_limits_shard_v1.csv"
+positive=$(awk -F',' 'NR>1 && $12==1 {c++} END {print c+0}' "$file")
+if [ "$positive" -lt 1 ]; then echo "ERROR: At least one positive_eco_event_flag required"; exit 1; fi
+echo "Positive events: $positive"
