@@ -1,0 +1,9 @@
+record_id,aln_ropeway_type,aln_description,aln_span_m,aln_load_capacity_kg,aln_trip_time_s,aln_elevation_diff_m,aln_cable_material,aln_cable_efficiency_ratio,aln_motor_efficiency_ratio,aln_flywheel_eff_ratio,aln_renewable_fraction,aln_energy_use_kwh_per_tonkm,aln_co2_avoided_kg_per_tonkm,aln_habitat_impact_level_0_10,aln_eco_impact_score_0_100,aln_mitigation_efficiency_pct,aln_regulatory_profile,aln_risk_to_ecology,aln_positive_eco_event_flag,aln_karma_offset_nk,aln_hex_proof
+1,Industrial_Bulk,Material handling over rugged terrain,5000,50000,900,50,Duplex_Stainless,0.92,0.94,0.88,0.80,0.18,0.22,7,85,75,EU_ETS_2025,Low,1,280,1c2d3e4f5a
+2,Cable_Ferry_Flywheel,Renewable-powered cable ferry,1200,40000,600,2,Titanium_Alloy,0.95,0.93,0.90,0.85,0.15,0.25,8,88,80,NOAA_MPA_2026,Minimal,1,300,2d3e4f5a6b
+3,Hydropower_Span,River crossing for materials,3000,30000,720,30,Fiber_Reinforced_Polymer,0.90,0.92,0.85,0.75,0.20,0.20,6,82,70,US_EPA_2024,Moderate,1,260,3e4f5a6b7c
+4,Mining_Ore_Transport,Mountain/gorge bulk ore,8000,60000,1200,100,Duplex_Stainless,0.93,0.95,0.89,0.82,0.16,0.23,7,86,76,IMO_2025,Low,1,290,4f5a6b7c8d
+5,Agricultural_Produce,Tea estate slope transport,2000,20000,480,20,Fiber_Reinforced_Polymer,0.91,0.93,0.87,0.78,0.19,0.21,8,84,72,FAO_SDG2_2026,Minimal,1,270,5a6b7c8d9e
+Eco-impact score level for dataset: Mean aln_eco_impact_score_0_100 = 85, reflecting high efficiency and positive offsets, with karma gains prioritizing routes that reduce emissions by 70-80% in sensitive aquatic zones.
+Mojo project layout and ropeway simulation
+Mojo is selected for high-performance modeling of ropeway dynamics, enabling efficient computation of energy profiles without cybernetics. Eco-impact score level: Simulations target raising aln_eco_impact_score_0_100 by 8-12 points via optimized renewables, with karma offsets scaled by CO2 avoidance.
