@@ -1,0 +1,11 @@
+ThreatType,AnnualImpact,ProtectionMethod,EcoValue
+ToxinAccumulation,100ppmMercury,FiltrationBarriers,9
+NutrientDepletion,20PercentMassLoss,NutrientBuoys,8
+PollutantRunoff,245000kmDeadZones,EstuaryMembranes,9
+MicroplasticIngestion,145000ParticlesDay,DebrisCollectors,8
+ClimateShifts,MigrationDisruptions,PathOptimizers,9
+NoiseDisturbance,15dBCallAlteration,BubbleCurtains,7
+HabitatLoss,SeagrassDecline,RevitalizationDrones,8
+Overfishing,PreyReduction,Hatcheries,9
+SeismicBlasts,StrandingIncrease,MonitoringNetworks,8
+Bioaccumulation,ImmuneSuppression,MicrobePods,7
