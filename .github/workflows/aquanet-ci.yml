@@ -1,0 +1,39 @@
+name: AquaNet Core CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        working-directory: src/CSharp/AquaNet.Core
+        run: dotnet restore
+
+      - name: Build
+        working-directory: src/CSharp/AquaNet.Core
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        if: exists('src/CSharp/AquaNet.Tests')
+        working-directory: src/CSharp/AquaNet.Tests
+        run: dotnet test --configuration Release --no-build --logger trx
+
+      - name: Eco-impact score summary
+        working-directory: qpudatashards
+        run: |
+          echo "Evaluating eco-impact from aquanet_aqua_karma_shard_v1.csv"
+          awk -F',' 'NR>1 {sum+=$51; n++} END {if(n>0) printf("Mean_EcoImpactScore_0_100=%.2f\n",sum/n);}' aquanet_aqua_karma_shard_v1.csv
