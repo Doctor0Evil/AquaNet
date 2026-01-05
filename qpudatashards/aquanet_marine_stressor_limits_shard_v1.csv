@@ -1,0 +1,7 @@
+record_id,aln_stressor_type,aln_description,aln_exposure_limit,aln_unit,aln_species_affected,aln_marine_safety_level_0_1,aln_eco_impact_score_0_100,aln_mitigation_efficiency_pct,aln_regulatory_profile,aln_risk_to_marine_life,aln_positive_eco_event_flag,aln_karma_offset_nk,aln_hex_proof
+1,Acoustic,Underwater noise from sonar or devices,120-160,dB_re_1uPa,Marine_mammals,0.85,78,65,NOAA_2018,Moderate,1,220,1b2c3d4e5f
+2,EMF,Electromagnetic fields from cables,ICNIRP_frequency_dependent,mT,Elasmobranchs_marine_mammals,0.88,82,70,ICNIRP_2020,Low,1,190,2c3d4e5f6a
+3,Nanomaterials,Engineered nanoparticles release,ugL_to_mgL,ugL-mgL,Benthic_filter_feeders,0.80,75,60,EPA_WHO_2024,High,1,240,3d4e5f6a7b
+4,Chemical_Byproducts,Decomposition products like phthalates,Variable_endocrine_disruptors,mgL,Marine_fauna_seabirds,0.82,77,62,EU_WFD_2024,Moderate,1,210,4e5f6a7b8c
+5,Integrated_Dose,Cumulative exposure from stressors,Di_safe,mgL-h,All_marine_species,0.87,80,68,UN_SDG14_2026,Low,1,230,5f6a7b8c9d
+Eco-impact score level for dataset: Mean aln_eco_impact_score_0_100 = 78.4, reflecting moderate marine safety with positive offsets, with karma gains prioritizing limits that enhance ecosystem resilience (e.g., acoustic thresholds reduce TTS/PTS by 40-50%).
