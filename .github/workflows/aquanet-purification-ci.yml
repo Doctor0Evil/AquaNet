@@ -1,0 +1,31 @@
+name: AquaNet Purification CI
+on:
+push:
+branches: [ main ]
+pull_request:
+branches: [ main ]
+jobs:
+build-test:
+runs-on: ubuntu-latest
+steps:
+
+name: Checkout repository
+uses: actions/checkout@v4
+name: Setup .NET
+uses: actions/setup-dotnet@v4
+with:
+dotnet-version: "8.0.x"
+name: Restore dependencies
+working-directory: src/CSharp/AquaNet.Core
+run: dotnet restore
+name: Build
+working-directory: src/CSharp/AquaNet.Core
+run: dotnet build --configuration Release --no-restore
+name: Test
+working-directory: src/CSharp/AquaNet.Core
+run: dotnet test --configuration Release --no-build --logger trx
+name: Eco-impact from purification shard
+working-directory: qpudatashards
+run: |
+echo "Evaluating purification eco-impact"
+awk -F',' 'NR>1 {sum+=$5; n++} END {if(n>0) printf("Mean_EcoImpactScore_0_100=%.2f\n",sum/n);}' aquanet_purification_methods_shard_v1.csv
